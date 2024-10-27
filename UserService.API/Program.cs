@@ -1,4 +1,13 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using UserService.API.BL.Services;
+using UserService.API.DAL;
+using US = UserService.API.BL.Services.UserService;
+
+
 namespace UserService.API
 {
     public class Program
@@ -31,6 +40,44 @@ namespace UserService.API
             app.MapControllers();
 
             app.Run();
+        }
+
+        public void ConfigureServices(IServiceCollection services, WebApplication app)
+        {
+            //services.AddDbContext<AppDbContext>(options =>
+            //    options.UseSqlite(app.Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddTransient<IUserService, US>();
+            services.AddTransient<IRoleService, RoleService>();
+
+            services.AddControllers();
+
+            var key = Encoding.ASCII.GetBytes(app.Configuration["Jwt:Key"]);
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireAdministratorRole",
+                    policy => policy.RequireRole("Administrator"));
+                options.AddPolicy("RequireUserRole",
+                    policy => policy.RequireRole("User"));
+            });
         }
     }
 }
