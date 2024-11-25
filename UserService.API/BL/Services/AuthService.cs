@@ -37,4 +37,3 @@ namespace UserService.API.BL.Services
         }
     }
 }
-}

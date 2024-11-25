@@ -1,6 +1,6 @@
 ﻿using UserService.API.DAL.Models;
 
-namespace UserService.API.BL.Services
+namespace UserService.API.BL.Services.Interfaces
 {
     public interface IRoleService
     {

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using UserService.API.BL.Services;
+using UserService.API.BL.Services.Interfaces;
 using UserService.API.DAL.Models;
 
 namespace UserService.API.PL.Controllers

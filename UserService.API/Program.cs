@@ -1,12 +1,12 @@
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using UserService.API.BL.Services;
+using UserService.API.BL.Services.Interfaces;
 using UserService.API.DAL;
 using US = UserService.API.BL.Services.UserService;
-
 
 namespace UserService.API
 {
@@ -44,8 +44,13 @@ namespace UserService.API
 
         public void ConfigureServices(IServiceCollection services, WebApplication app)
         {
-            //services.AddDbContext<AppDbContext>(options =>
-            //    options.UseSqlite(app.Configuration.GetConnectionString("DefaultConnection")));
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
+            services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(app.Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddTransient<IUserService, US>();
             services.AddTransient<IRoleService, RoleService>();

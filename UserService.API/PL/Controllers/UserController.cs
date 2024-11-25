@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using UserService.API.BL.Services;
+using UserService.API.BL.Services.Interfaces;
 using UserService.API.DAL.Models;
 using UserService.API.PL.Models;
 

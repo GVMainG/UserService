@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Data;
+using UserService.API.BL.Services.Interfaces;
 using UserService.API.DAL;
 using UserService.API.DAL.Models;
 

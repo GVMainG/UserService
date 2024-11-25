@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using UserService.API.BL.Services.Interfaces;
 using UserService.API.DAL;
 using UserService.API.DAL.Models;
 
