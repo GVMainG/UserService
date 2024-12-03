@@ -1,7 +1,11 @@
 version: '3.9'
 
+networks:
+  deploy-guide-dev:
+    driver: bridge
+
 services:
-  userdbservice:
+  user-db-service:
     image: postgres:13.3
     container_name: UserDBService
     environment:
@@ -10,14 +14,18 @@ services:
       POSTGRES_PASSWORD: "admin"
     ports:
       - "5432:5432"
+    networks:
+      - deploy-guide-dev      
 
   userservice.api:
-    image: userserviceapi
-    container_name: UserService.API
-    # environment:
-    #   - ASPNETCORE_ENVIRONMENT=Development
+    image: user-service-api
+    container_name: user-service-api
     build:
       context: .
       dockerfile: UserService.API/Dockerfile
     ports:
-      - "5000:80"
+      - "8080:8080"
+    networks:
+      - deploy-guide-dev
+    depends_on:
+      - user-db-service

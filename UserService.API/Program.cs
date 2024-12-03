@@ -23,42 +23,16 @@ namespace UserService.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            var app = builder.Build();
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            builder.Services.AddTransient<IUserService, US>();
+            builder.Services.AddTransient<IRoleService, RoleService>();
 
-            app.UseHttpsRedirection();
+            builder.Services.AddControllers();
 
-            app.UseAuthorization();
-
-
-            app.MapControllers();
-
-            app.Run();
-        }
-
-        public void ConfigureServices(IServiceCollection services, WebApplication app)
-        {
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-            });
-
-            services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(app.Configuration.GetConnectionString("DefaultConnection")));
-
-            services.AddTransient<IUserService, US>();
-            services.AddTransient<IRoleService, RoleService>();
-
-            services.AddControllers();
-
-            var key = Encoding.ASCII.GetBytes(app.Configuration["Jwt:Key"]);
-            services.AddAuthentication(x =>
+            var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+            builder.Services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -76,13 +50,41 @@ namespace UserService.API
                 };
             });
 
-            services.AddAuthorization(options =>
+            builder.Services.AddAuthorization(options =>
             {
                 options.AddPolicy("RequireAdministratorRole",
                     policy => policy.RequireRole("Administrator"));
                 options.AddPolicy("RequireUserRole",
                     policy => policy.RequireRole("User"));
             });
+
+            var app = builder.Build();
+            ConfigureServices(builder.Services, app);
+            // Configure the HTTP request pipeline.
+            //if (app.Environment.IsDevelopment())
+            //{
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            //}
+
+            app.UseHttpsRedirection();
+            app.UseAuthorization();
+
+            app.MapControllers();
+
+            app.Run();
+        }
+
+        public static void ConfigureServices(IServiceCollection services, WebApplication app)
+        {
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
+            
+
+            
         }
     }
 }
